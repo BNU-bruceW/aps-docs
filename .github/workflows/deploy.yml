@@ -16,17 +16,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --no-frozen-lockfile
-      - run: pnpm build
+      - name: Prepare offline page
+        run: |
+          mkdir -p offline-site
+          cat > offline-site/index.html <<'EOF'
+          <!doctype html>
+          <html lang="zh-CN">
+          <head>
+            <meta charset="utf-8">
+            <meta name="robots" content="noindex, nofollow, noarchive">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Site unavailable</title>
+          </head>
+          <body>
+            <p>Site unavailable.</p>
+          </body>
+          </html>
+          EOF
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/.vitepress/dist
+          publish_dir: offline-site
           publish_branch: gh-pages
